@@ -1,0 +1,27 @@
+[project]
+name = "forecast-agent"
+version = "0.1.0"
+description = "Forecasting agent with Q&A"
+authors = [
+    {name = "Your Name", email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+packages = [{ include = "forecast_agent", from = "src" }]
+dependencies = [
+    "pandas (>=2.3.3,<3.0.0)",
+    "numpy (>=2.3.3,<3.0.0)",
+    "statsmodels (>=0.14.5,<0.15.0)",
+    "scikit-learn (>=1.7.2,<2.0.0)",
+    "click (>=8.3.0,<9.0.0)",
+    "streamlit (>=1.50.0,<2.0.0)",
+    "fastapi (>=0.115.0,<1.0.0)",
+    "uvicorn[standard] (>=0.30.0,<0.31.0)",
+]
+
+[project.scripts]
+forecast-agent = "forecast_agent.cli:cli"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,218 @@
+openapi: 3.0.3
+info:
+  title: Forecast Agent Skill API
+  version: 0.1.0
+  description: |
+    REST endpoints for the SaaS forecast agent. Register this specification as a
+    custom skill inside IBM Watson Orchestrate to query forecasts, ask for
+    narrative answers, and surface the dashboard link.
+servers:
+  - url: https://{host}
+    description: Base URL where the FastAPI service is deployed.
+    variables:
+      host:
+        default: localhost:8000
+        description: Update to the public host name before importing into Orchestrate.
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    MetricsResponse:
+      type: object
+      properties:
+        metrics:
+          type: array
+          items:
+            type: string
+        primary_metric:
+          type: string
+      required:
+        - metrics
+        - primary_metric
+    ForecastPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        point:
+          type: number
+        lower:
+          type: number
+        upper:
+          type: number
+      required:
+        - date
+        - point
+        - lower
+        - upper
+    ForecastResponse:
+      type: object
+      properties:
+        metric:
+          type: string
+        horizon:
+          type: integer
+          minimum: 1
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/ForecastPoint'
+      required:
+        - metric
+        - horizon
+        - points
+    AskRequest:
+      type: object
+      properties:
+        question:
+          type: string
+          minLength: 1
+        metric:
+          type: string
+          nullable: true
+      required:
+        - question
+    AskResponse:
+      type: object
+      properties:
+        answer:
+          type: string
+        metric:
+          type: string
+        origin:
+          type: string
+      required:
+        - answer
+        - metric
+    DashboardResponse:
+      type: object
+      properties:
+        configured:
+          type: boolean
+        url:
+          type: string
+          format: uri
+          nullable: true
+        note:
+          type: string
+          nullable: true
+      required:
+        - configured
+    RefreshResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        horizon_months:
+          type: integer
+        data_path:
+          type: string
+      required:
+        - status
+        - horizon_months
+        - data_path
+paths:
+  /health:
+    get:
+      summary: Health probe
+      operationId: getHealth
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Service is reachable.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+  /metrics:
+    get:
+      summary: List available metrics
+      operationId: listMetrics
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Forecastable metrics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+  /forecast/{metric}:
+    get:
+      summary: Retrieve the forecast for a metric
+      operationId: getForecastByMetric
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: metric
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Name of the metric (case insensitive, spaces allowed).
+      responses:
+        '200':
+          description: Forecast horizon for the metric.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForecastResponse'
+        '404':
+          description: Metric not found.
+  /ask:
+    post:
+      summary: Ask a natural-language question
+      operationId: askForecastQuestion
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AskRequest'
+      responses:
+        '200':
+          description: Generated answer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AskResponse'
+        '404':
+          description: Requested metric not found.
+  /dashboard:
+    get:
+      summary: Fetch the dashboard link
+      operationId: getDashboardLink
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Dashboard availability information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+  /refresh:
+    post:
+      summary: Reload the forecast agent
+      operationId: refreshAgent
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Rebuilt agent metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
