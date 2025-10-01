@@ -4,7 +4,7 @@ A proof-of-concept forecasting agent that fits time-series models on SaaS metric
 
 ## Environment
 
-The project uses Poetry for environment and dependency management. Python 3.12 is required.
+The project uses Poetry for environment and dependency management. Python 3.12 or 3.13 is supported.
 
 ```bash
 poetry install

@@ -6,7 +6,7 @@ authors = [
     {name = "Your Name", email = "you@example.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.12,<3.14"
 packages = [{ include = "forecast_agent", from = "src" }]
 dependencies = [
     "pandas (>=2.3.3,<3.0.0)",
