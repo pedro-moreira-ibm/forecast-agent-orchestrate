@@ -74,7 +74,7 @@ Inside the app you can:
 
 1. **Longer history** - at least 3-5 years (60+ points) improves seasonal and trend estimates.
 2. **Higher granularity** - weekly or daily series help catch short-term swings and enable hierarchical reconciliation.
-3. **Segmentation** - cohorts (plan tier, region, acquisition channel) let you model heterogeneity and answer “why” with concrete segments.
+3. **Segmentation** - cohorts (plan tier, region, acquisition channel) let you model heterogeneity and answer "why" with concrete segments.
 4. **External signals** - marketing calendars, pricing changes, economic indicators give the models real drivers beyond autocorrelation.
 5. **Event tracking** - labeled interventions (product launches, outages) allow the agent to explain structural shifts instead of attributing them to noise.
 
@@ -86,21 +86,21 @@ When you can supply the above data, the forecasting stack should graduate to ric
    - Start the REST layer with `poetry run uvicorn forecast_agent.service:app --host 0.0.0.0 --port 8000 --env-file env.orchestrate.example` (copy the file and adjust if needed)
    - Expose the port that IBM Watson Orchestrate can reach (through your ingress, API gateway, or tunnel).
 2. **Provide the required environment variables** before launching the service:
-   - `FORECAST_AGENT_API_KEY` — set this to `u315UbYulLICUbw_ty6FNCQtXkBoaedth_qsHynNtqs3` so only your Watson Orchestrate instance can call the agent.
-   - `FORECAST_DASHBOARD_URL` — public URL of the Streamlit dashboard you want the skill to surface. Share the link you plan to expose so I can double-check formatting if needed.
+   - `FORECAST_AGENT_API_KEY` - set this to `u315UbYulLICUbw_ty6FNCQtXkBoaedth_qsHynNtqs3` so only your Watson Orchestrate instance can call the agent.
+   - `FORECAST_DASHBOARD_URL` - public URL of the Streamlit dashboard you want the skill to surface. Share the link you plan to expose so I can double-check formatting if needed.
    - Optional overrides: `FORECAST_DATA_PATH` for a custom CSV location, `FORECAST_HORIZON` to change the number of projected months.
    - Edit `env.orchestrate.example` (or supply your own env file) so the API key and instance URL are loaded automatically when uvicorn starts.
 3. **Register the skill** inside Orchestrate:
    - Upload `docs/orchestrate_skill.yaml` as a new custom skill definition.
    - Update the server URL in the dialog to the public host/port of your deployment.
    - Point the connection at your Watson Orchestrate instance: https://api.us-south.watson-orchestrate.cloud.ibm.com/instances/1d97775c-2501-47d1-9cba-1c77bd101291.
-   - Store the API key secret in Orchestrate’s connection designer; it must match `FORECAST_AGENT_API_KEY`.
+   - Store the API key secret in Orchestrate's connection designer; it must match `FORECAST_AGENT_API_KEY`.
 4. **Wire actions to phrases**
-   - Map “ask” flows to the `POST /ask` operation so users can pose questions in chat.
+   - Map "ask" flows to the `POST /ask` operation so users can pose questions in chat.
    - Map report-style or card responses to `GET /forecast/{metric}` (returns the full horizon) and `GET /dashboard` for the dashboard link.
    - Use `POST /refresh` in admin recipes when you update the underlying CSV.
 5. **Test the conversation**
-   - In Orchestrate Studio, trigger phrases like “Show me the MRR forecast” or “Why is revenue trending up?” and ensure the responses render correctly.
+   - In Orchestrate Studio, trigger phrases like "Show me the MRR forecast" or "Why is revenue trending up?" and ensure the responses render correctly.
    - Provide the dashboard URL as a button or link element in the response template.
 
 The FastAPI app mirrors the CLI/dash logic, so anything you can ask locally will now be available to Orchestrate once the service is reachable.
